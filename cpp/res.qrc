@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>styles/button.qss</file>
+        <file>favicon.ico</file>
+    </qresource>
+</RCC>
