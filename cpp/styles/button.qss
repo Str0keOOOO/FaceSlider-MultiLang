@@ -1,0 +1,17 @@
+#btnHappy, #btnUnhappy {
+border-radius: 8px;
+font-size: 18px;
+color: white;
+}
+#btnHappy {
+background-color: #6a4;
+}
+#btnHappy:hover {
+background-color: #81c061;
+}
+#btnUnhappy {
+background-color: #a43;
+}
+#btnUnhappy:hover {
+background-color: #c85a48;
+}
