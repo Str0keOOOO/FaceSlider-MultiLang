@@ -4,9 +4,7 @@
 
 ## 构建
 
-此C++项目使用cmake构建，要求cmake最低版本为3.16。构建步骤如下：
-
-首先需要自行安装[Qt库](https://www.qt.io/)
+此C++项目基于Qt6编写，使用cmake构建，要求cmake最低版本为3.16，因此**要求使用者应具备Qt6及cmake环境**。构建步骤如下：
 
 ```
 git clone https://github.com/Str0keOOOO/FaceSlider-MultiLang
@@ -19,9 +17,13 @@ cmake --build ./build --target all
 
 或者您也可以使用Qt Creator, Visual Studio构建此项目。
 
+## 安装
+
+使用者也可通过安装程序(installer.exe)直接安装可执行文件，此安装程序也位于此目录下（目前只有Windows版本的安装程序）。
+
 ## 效果展示
 
-![image](https://github.com/user-attachments/assets/79cf60e8-96ad-4b5e-aa54-9746488b502f)
+<img src="https://github.com/user-attachments/assets/d76a4020-cc39-4eba-9549-4e553c807bb9" title="interface display" style="zoom: 50%;" />
 
 ## 不足
 
@@ -29,7 +31,7 @@ cmake --build ./build --target all
 
 - 在对动画过渡效果方面的支持，Qt明显差于Web。因此本项目在动画流畅度方面是不如Web版本的。本人尽量会做到动画流畅度高一点，之后可能会这方面进行优化改进。
 
-- 不同于Web端，本项目最终会输出为一个客户端，需要考虑布局自适应的情况，因此，本项目在窗口大小调整方面做了部分工作，例如监听了`resizeEvent()`，也因此存在最大化、向下还原调整后眼睛部位的位置不正确的bug。之后可能会对解决此bug。
+- 不同于Web端，本项目最终会输出为一个客户端，需要考虑布局自适应的情况，因此，本项目在窗口大小调整方面做了部分工作，例如监听了`resizeEvent()`，也因此存在最大化、向下还原调整后眼睛部位的位置不正确的bug。之后可能会解决此bug。
 
 - Qt在遮罩(mask)方面的处理是较为复杂的，相较于浏览器的一句`overflow: hidden;`，Qt这边所做的要多的多。Qt中如果想要隐藏某一组件的一部分，而另一部分暴露可通过以下几种常用的方法：
 
@@ -77,7 +79,7 @@ int main() {
 
 本C++版本还提供了**多语言**功能的支持，您可**右键界面**，选择相应的语言，目前仅支持简体中文、English。
 
-![image](https://github.com/user-attachments/assets/6cf77cc4-5cc0-4f7e-9de6-4122614d3d9e)
+<img src="https://github.com/user-attachments/assets/cbe65c33-7e6d-447d-92a6-e778033f1712" title="multi language" style="zoom:50%;" />
 
 ## 贡献
 
