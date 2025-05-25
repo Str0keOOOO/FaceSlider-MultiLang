@@ -10,7 +10,7 @@ interface Props {
   maxUnhappyCount?: number
   animationSpeed?: number
   normalFace?: { happiness: number; derp: number; px: number; py: number }
-  normalIUi?: { btnHappyText: string; btnUnhappyText: string; titleText: string; subtitleText: string }
+  normalUi?: { btnHappyText: string; btnUnhappyText: string; titleText: string; subtitleText: string }
 }
 
 interface Config {
@@ -94,7 +94,7 @@ const config: Config = {
   states: {
     normal: {
       face: props.normalFace || { happiness: 0.9, derp: 1, px: 0.5, py: 0.5 },
-      ui: props.normalIUi || {
+      ui: props.normalUi || {
         btnHappyText: "取消",
         btnUnhappyText: "卸载",
         titleText: "你确定要卸载吗",

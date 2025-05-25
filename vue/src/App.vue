@@ -4,7 +4,7 @@ import FaceSlider from './components/FaceSlider.vue';
 const maxUnhappyCount = 5
 const animationSpeed = 0.1
 const normalFace = { happiness: 0.9, derp: 1, px: 0.5, py: 0.5 }
-const normalIUi = {
+const normalUi = {
   btnHappyText: "取消",
   btnUnhappyText: "卸载",
   titleText: "你确定要卸载吗",
@@ -15,7 +15,7 @@ const normalIUi = {
 <template>
   <div class="center-container">
     <FaceSlider :maxUnhappyCount="maxUnhappyCount" :animationSpeed="animationSpeed" :normalFace="normalFace"
-      :normalIUi="normalIUi" />
+      :normalUi="normalUi" />
   </div>
 </template>
 

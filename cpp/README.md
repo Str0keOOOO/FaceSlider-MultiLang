@@ -6,6 +6,8 @@
 
 此C++项目使用cmake构建，要求cmake最低版本为3.16。构建步骤如下：
 
+首先需要自行安装[Qt库](https://www.qt.io/)
+
 ```
 git clone https://github.com/Str0keOOOO/FaceSlider-MultiLang
 cd FaceSlider-MultiLang/cpp
@@ -80,3 +82,5 @@ int main() {
 ## 贡献
 
 欢迎提交 Issue 或 Pull Request 来改进此组件。
+
+本人主页[pigrich (pigrich)](https://github.com/pigrich)
