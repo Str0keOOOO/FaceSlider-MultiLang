@@ -19,7 +19,7 @@ cmake --build ./build --target all
 
 ## 安装
 
-使用者也可通过安装程序(installer.exe)直接安装可执行文件，此安装程序也位于此目录下（目前只有Windows版本的安装程序）。
+使用者也可通过安装程序(installer.exe)直接安装可执行文件，此安装程序在[release](https://github.com/Str0keOOOO/FaceSlider-MultiLang/releases/tag/v1.0.0)里面（目前只有Windows版本的安装程序）。
 
 ## 效果展示
 
