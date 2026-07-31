@@ -22,7 +22,8 @@ set(PROJECT_SOURCES
         FaceSlider.ui
         StyleLoader.h
         StyleLoader.cpp
-        Face.h Face.cpp Face.ui
+        Face.h Face.cpp
+        app.rc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

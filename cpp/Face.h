@@ -4,10 +4,6 @@
 #include <QPainterPath>
 #include <QWidget>
 
-namespace Ui {
-class Face;
-}
-
 class QPropertyAnimation;
 
 class Face : public QWidget
@@ -16,7 +12,6 @@ class Face : public QWidget
 
 public:
     explicit Face(QWidget *parent);
-    ~Face();
 
     Face &setFaceX(double x);
     double faceX() const;
@@ -44,19 +39,11 @@ private:
         inline bool isLeft() const { return pos_ == Left; }
 
     protected:
-        void resizeEvent(QResizeEvent *e) override;
         void paintEvent(QPaintEvent *e) override;
 
     private:
-        class EyeBall : public QWidget
-        {
-        public:
-            explicit EyeBall(Eye *parent);
-
-        protected:
-            void paintEvent(QPaintEvent *e) override;
-        } *ball_;
-
+        QPointF ball_pos_;// the center point of the eye ball
+        double ball_radius_{};
         Position pos_;
     } *eyes_[2]; // 0 is left eye and 1 is right eye
 
@@ -82,32 +69,18 @@ private:
         void resizeEvent(QResizeEvent *e) override;
 
     private:
-        class Teeth : public QWidget
-        {
-        public:
-            explicit Teeth(QWidget *parent);
-
-        protected:
-            void paintEvent(QPaintEvent *e) override;
-        } *teeth_;
-
-        class Tongue : public QWidget
-        {
-        public:
-            explicit Tongue(QWidget *parent);
-
-        protected:
-            void paintEvent(QPaintEvent *e) override;
-        } *tongue_;
+        QPointF teeth_pos_;
+        QSizeF teeth_sz_;
+        QPointF tongue_pos_;
+        QSizeF tongue_sz_;
     } *mouth_;
 
-    Ui::Face *ui;
     double x_;
     double y_;
     double drep_;
     double happiness_;
 
-    static const unsigned BorderWidth = 2;
+    static constexpr int BorderWidth = 2;
 };
 
 #endif // FACE_H

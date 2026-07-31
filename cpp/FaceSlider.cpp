@@ -131,7 +131,7 @@ QString FaceSlider::btnUnhappyText() const
 bool FaceSlider::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::MouseMove) {
-        if (controls_.find(o) != controls_.end()) {
+        if (controls_.contains(o)) {
             e->ignore();
         }
     }
@@ -176,7 +176,7 @@ void FaceSlider::contextMenuEvent(QContextMenuEvent *e)
 void FaceSlider::showEvent(QShowEvent *e)
 {
     if (btn_clicked_) {
-        e->ignore();
+        e->accept();
         return;
     }
 
@@ -195,17 +195,18 @@ void FaceSlider::resizeEvent(QResizeEvent *e)
                           height() - btnUnhappy_->height() - 30);
     }
     btnHappy_->move(50, height() - btnHappy_->height() - 30);
+    ui->face->setHappiness(0.9);
     ui->face->setFaceX(0.5);
     ui->face->setFaceY(0.5);
-    ui->face->setHappiness(0.9);
     ui->face->setDrep(1);
     e->accept();
 }
 
 void FaceSlider::enterEvent(QEnterEvent *e)
 {
+    leaving_ = false;
     if (btn_clicked_) {
-        e->ignore();
+        e->accept();
         return;
     }
 
@@ -215,32 +216,29 @@ void FaceSlider::enterEvent(QEnterEvent *e)
 
 void FaceSlider::leaveEvent(QEvent *e)
 {
+    leaving_ = true;
     if (btn_clicked_) {
-        e->ignore();
+        e->accept();
         return;
     }
 
-    ui->face->setFaceX(0.5);
-    ui->face->setFaceY(0.5);
-    ui->face->setHappiness(0.9);
-    startAnim(1);
+    startAnim(1, 0.5, 0.5, 0.9);
     e->accept();
 }
 
 void FaceSlider::mouseMoveEvent(QMouseEvent *e)
 {
-    if (btn_clicked_) {
-        e->ignore();
+    if (btn_clicked_ || leaving_) {
+        e->accept();
         return;
     }
 
-    auto pos = e->position();
-    ui->face->setFaceX(pos.x() / width());
-    ui->face->setFaceY(pos.y() / height());
-    // calc happiness
-    auto happiness = calcHappiness(pos);
-    qDebug() << "happiness:" << happiness;
-    ui->face->setHappiness(happiness);
+    mousePos_ = e->position();
+    if (timerId_ >= 0) {
+        return e->accept();
+    }
+    timerId_ = startTimer(26);
+
     e->accept();
 }
 
@@ -257,6 +255,25 @@ void FaceSlider::changeEvent(QEvent *e)
         }
     }
     QWidget::changeEvent(e);
+}
+
+void FaceSlider::timerEvent(QTimerEvent *e)
+{
+    if (mousePos_.isNull())
+        return e->accept();
+
+    if (!leaving_) {
+        const double happiness = calcHappiness(mousePos_);
+        // qDebug() << "happiness:" << happiness;
+        ui->face->setFaceX(mousePos_.x() / width())
+            .setFaceY(mousePos_.y() / height())
+            .setHappiness(happiness);
+    }
+
+    killTimer(timerId_);
+    timerId_ = -1;
+
+    e->accept();
 }
 
 void FaceSlider::do_btnHappy_clicked()
@@ -276,6 +293,16 @@ void FaceSlider::do_btnHappy_clicked()
         btnUnhappy_->show();
         ui->title->setText(tr("你确定要卸载吗"));
         ui->subtitle->setText(tr("希望不要卸载"));
+
+        reject_cnt_ = 0;
+        btnUnhappy_->move(width() - btnUnhappy_->width() - 50,
+                          height() - btnUnhappy_->height() - 30);
+        btnHappy_->move(50, height() - btnUnhappy_->height() - 30);
+        if (anim_happy_size_->state() == QAbstractAnimation::Running)
+            anim_happy_size_->stop();
+        anim_happy_size_->setStartValue(btnHappy_->size());
+        anim_happy_size_->setEndValue(btnUnhappy_->size());
+        anim_happy_size_->start();
     }
 }
 
@@ -286,6 +313,10 @@ void FaceSlider::do_btnUnhappy_clicked()
         // 移动卸载按钮到随机位置
         auto generator = QRandomGenerator::global();
         btnUnhappy_->move(generator->bounded(0.8) * width(), generator->bounded(0.8) * height());
+        const double happiness = calcHappiness(mousePos_);
+        ui->face->setFaceX(mousePos_.x() / width())
+            .setFaceY(mousePos_.y() / height())
+            .setHappiness(happiness);
         // 加大取消按钮的大小
         if (anim_happy_size_->state() == QAbstractAnimation::Running)
             anim_happy_size_->stop();
@@ -355,10 +386,13 @@ void FaceSlider::initUI()
     setPalette(pal);
 
     btnHappy_ = new QPushButton(tr("取消"), this);
+    btnHappy_->setCursor(Qt::PointingHandCursor);
     btnHappy_->setObjectName("btnHappy");
     btnHappy_->resize(100, 50);
     connect(btnHappy_, &QPushButton::clicked, this, &FaceSlider::do_btnHappy_clicked);
+
     btnUnhappy_ = new QPushButton(tr("卸载"), this);
+    btnUnhappy_->setCursor(Qt::PointingHandCursor);
     btnUnhappy_->setObjectName("btnUnhappy");
     btnUnhappy_->resize(100, 50);
     connect(btnUnhappy_, &QPushButton::clicked, this, &FaceSlider::do_btnUnhappy_clicked);
@@ -366,6 +400,18 @@ void FaceSlider::initUI()
 
 void FaceSlider::initAnim()
 {
+    anim_faceX_ = new QPropertyAnimation(this, "faceX", this);
+    anim_faceX_->setDuration(300);
+    anim_faceX_->setEasingCurve(QEasingCurve::OutQuad);
+
+    anim_faceY_ = new QPropertyAnimation(this, "faceY", this);
+    anim_faceY_->setDuration(300);
+    anim_faceY_->setEasingCurve(QEasingCurve::OutQuad);
+
+    anim_happiness_ = new QPropertyAnimation(this, "happiness", this);
+    anim_happiness_->setDuration(300);
+    anim_happiness_->setEasingCurve(QEasingCurve::OutQuad);
+
     anim_drep_ = new QPropertyAnimation(this, "drep", this);
     anim_drep_->setDuration(300);
     anim_drep_->setEasingCurve(QEasingCurve::OutQuad);
@@ -375,8 +421,32 @@ void FaceSlider::initAnim()
     anim_happy_size_->setEasingCurve(QEasingCurve::OutQuad);
 }
 
-void FaceSlider::startAnim(double drep)
+void FaceSlider::startAnim(double drep, double faceX, double faceY, double happiness)
 {
+    if (faceX >= 0) {
+        if (anim_faceX_->state() == QAbstractAnimation::Running)
+            anim_faceX_->stop();
+        anim_faceX_->setStartValue(ui->face->faceX());
+        anim_faceX_->setEndValue(faceX);
+        anim_faceX_->start();
+    }
+
+    if (faceY >= 0) {
+        if (anim_faceY_->state() == QAbstractAnimation::Running)
+            anim_faceY_->stop();
+        anim_faceY_->setStartValue(ui->face->faceY());
+        anim_faceY_->setEndValue(faceY);
+        anim_faceY_->start();
+    }
+
+    if (happiness >= 0) {
+        if (anim_happiness_->state() == QAbstractAnimation::Running)
+            anim_happiness_->stop();
+        anim_happiness_->setStartValue(ui->face->happiness());
+        anim_happiness_->setEndValue(happiness);
+        anim_happiness_->start();
+    }
+
     if (anim_drep_->state() == QAbstractAnimation::Running)
         anim_drep_->stop();
     anim_drep_->setStartValue(ui->face->drep());
