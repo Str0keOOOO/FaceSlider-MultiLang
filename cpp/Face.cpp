@@ -11,8 +11,9 @@ Face::Face(QWidget *parent)
     if (parent)
         parent->installEventFilter(this);
 
-    // 成员实例化的顺序会影响到绘制的层次，因此blushes应在eyes_前实例化
-    // 从而到达eyes_覆盖blushed的效果
+    // The order of instantiating members will affect the drawing hierarchy
+    // Therefore, blushes_ should be instantiated before eyes_
+    // Thus achieving the effect of eyes_ covering blushing
     blushes_[0] = new Blush(this);
     blushes_[1] = new Blush(this);
     eyes_[0] = new Eye(Eye::Left, this);
@@ -23,18 +24,6 @@ Face::Face(QWidget *parent)
 Face &Face::setFaceX(double x)
 {
     x_ = x;
-    eyes_[0]->move(width() * (0.18 + x * 0.04), eyes_[0]->y());
-    eyes_[1]->move(width() - eyes_[1]->width() - width() * (0.22 - x * 0.04), eyes_[1]->y());
-    eyes_[0]->updateBallPos(x_, y_, drep_);
-    eyes_[1]->updateBallPos(x_, y_, drep_);
-    // blush
-    double percent = 0.07 + 0.02 * x; // left
-    blushes_[0]->move(percent * width(), blushes_[0]->y());
-    percent = 0.09 - 0.02 * x; // right
-    blushes_[1]->move(width() - percent * width() - blushes_[1]->width(), blushes_[1]->y());
-    // mouth
-    const double leftPercent = 0.475 + x * 0.05;
-    mouth_->move(leftPercent * width(), mouth_->y());
     return *this;
 }
 
@@ -46,17 +35,6 @@ double Face::faceX() const
 Face &Face::setFaceY(double y)
 {
     y_ = y;
-    eyes_[0]->move(eyes_[0]->x(), height() * (0.25 + y * 0.1));
-    eyes_[1]->move(eyes_[1]->x(), height() * (0.25 + y * 0.1));
-    eyes_[0]->updateBallPos(x_, y_, drep_);
-    eyes_[1]->updateBallPos(x_, y_, drep_);
-    // blush
-    const double percent = 0.45 + 0.1 * y;
-    blushes_[0]->move(blushes_[0]->x(), height() * percent);
-    blushes_[1]->move(blushes_[1]->x(), height() * percent);
-    // mouth
-    const double topPercent = 0.7 + y * 0.05;
-    mouth_->move(mouth_->x(), topPercent * height());
     return *this;
 }
 
@@ -68,8 +46,6 @@ double Face::faceY() const
 Face &Face::setDrep(double drep)
 {
     drep_ = drep;
-    eyes_[0]->updateBallPos(x_, y_, drep_);
-    eyes_[1]->updateBallPos(x_, y_, drep_);
     return *this;
 }
 
@@ -121,27 +97,54 @@ static QPainterPath setRadius(const QSizeF &sz, double tl, double tr, double br,
 Face &Face::setHappiness(double happiness)
 {
     happiness_ = happiness;
-    // eyes_
-    eyes_[0]->setHappiness(happiness);
-    eyes_[1]->setHappiness(happiness);
-    // blush
-    blushes_[0]->happiness = happiness;
-    blushes_[1]->happiness = happiness;
-    // mouth
-    const double wPercent = 0.51 - happiness * 0.02;
-    const double hPercent = 0.26 - happiness * 0.02;
-    mouth_->resize(wPercent * width(), hPercent * height());
-    const double topRadius = (1 - happiness) * mouth_->height();
-    const double bottomRadius = happiness * mouth_->height();
-    mouth_->path = setRadius(mouth_->size(), topRadius, topRadius, bottomRadius, bottomRadius);
-    mouth_->move(mouth_->pos() - QPoint(mouth_->width() / 2, mouth_->height() / 2)); // 移到中心点
-    update();
     return *this;
 }
 
 double Face::happiness() const
 {
     return happiness_;
+}
+
+void Face::apply()
+{
+    const int w = width(), h = height();
+    // eyes
+    eyes_[0]->setHappiness(happiness_);// calc eye size and eye ball radius
+    eyes_[1]->setHappiness(happiness_);
+
+    const double eyeY = h * (0.25 + y_ * 0.1);
+    eyes_[0]->move(w * (0.18 + x_ * 0.04), eyeY);
+    // right eye depends on eye size, so setHappiness() MUST be called before right eye calls move()
+    eyes_[1]->move(w - eyes_[1]->width() - w * (0.22 - x_ * 0.04), eyeY);
+
+    eyes_[0]->updateBallPos(x_, y_, drep_);// calc eye ball position
+    eyes_[1]->updateBallPos(x_, y_, drep_);
+
+    // blush
+    const double xLeftPercent = 0.07 + 0.02 * x_; // left
+    const double blushY = (0.45 + 0.1 * y_) * h;
+    blushes_[0]->move(xLeftPercent * w, blushY);
+    const double xRightPercent = 0.09 - 0.02 * x_; // right
+    blushes_[1]->move(w - xRightPercent * w - blushes_[1]->width(), blushY);
+
+    blushes_[0]->happiness_ = happiness_;
+    blushes_[1]->happiness_ = happiness_;
+
+    // mouth
+    const double wPercent = 0.51 - happiness_ * 0.02;
+    const double hPercent = 0.26 - happiness_ * 0.02;
+    mouth_->resize(wPercent * w, hPercent * h);
+
+    const double leftPercent = 0.475 + x_ * 0.05;
+    const double topPercent = 0.7 + y_ * 0.05;
+    mouth_->move(leftPercent * w - mouth_->width() / 2,
+                 topPercent * height() - mouth_->height() / 2);
+
+    const double topRadius = (1 - happiness_) * mouth_->height();
+    const double bottomRadius = happiness_ * mouth_->height();
+    mouth_->path_ = setRadius(mouth_->size(), topRadius, topRadius, bottomRadius, bottomRadius);
+
+    update();
 }
 
 bool Face::eventFilter(QObject *o, QEvent *e)
@@ -261,7 +264,7 @@ void Face::Blush::paintEvent(QPaintEvent *e)
     QPen pen(QColor(255, 100, 100, 77));
     pen.setWidth(3);
     painter.setPen(pen);
-    painter.setOpacity(happiness * happiness * 0.9 + 0.1);
+    painter.setOpacity(happiness_ * happiness_ * 0.9 + 0.1);
     painter.drawEllipse(rect());
     QWidget::paintEvent(e);
 }
@@ -279,12 +282,12 @@ void Face::Mouth::paintEvent(QPaintEvent *e)
     QPen pen(QColor(0x962d2d));
     pen.setWidth(BorderWidth);
     painter.setPen(pen);
-    painter.setClipPath(path); // 裁剪掉那些超出path的部分
-    painter.drawPath(path);
+    painter.setClipPath(path_); // clip off the parts that exceed the path
+    painter.drawPath(path_);
     // then fill the background
     painter.setBrush(QColor(0xaa3333));
     painter.setPen(Qt::NoPen);
-    painter.drawPath(path);
+    painter.drawPath(path_);
     // draw teeth
     painter.setBrush(Qt::white);
     const QPainterPath teethPath = setRadius(teeth_sz_, 0, 0, 0.4 * teeth_sz_.height(), 0.4 * teeth_sz_.height());
@@ -304,7 +307,7 @@ void Face::Mouth::resizeEvent(QResizeEvent *e)
     // teeth
     teeth_sz_ = QSizeF(width() * 0.25, height() * 0.25);
     teeth_pos_ = QPointF(width() * 0.5, BorderWidth);
-    // tongue_
+    // tongue
     tongue_sz_ = QSizeF(width() * 0.6, height() * 0.5);
     tongue_pos_ = QPointF(width() * 0.1, height() - tongue_sz_.height());
     update();

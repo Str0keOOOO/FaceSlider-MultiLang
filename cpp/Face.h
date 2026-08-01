@@ -21,6 +21,7 @@ public:
     double drep() const;
     Face &setHappiness(double happiness);
     double happiness() const;
+    void apply();
 
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
@@ -51,7 +52,7 @@ private:
     {
     public:
         explicit Blush(QWidget *parent);
-        double happiness;
+        double happiness_;
 
     protected:
         void paintEvent(QPaintEvent *e) override;
@@ -62,7 +63,7 @@ private:
     public:
         explicit Mouth(QWidget *parent);
 
-        QPainterPath path;
+        QPainterPath path_;
 
     protected:
         void paintEvent(QPaintEvent *e) override;
