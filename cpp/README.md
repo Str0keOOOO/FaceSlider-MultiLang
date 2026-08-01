@@ -80,7 +80,8 @@ int main() {
 本C++版本还提供了**多语言**功能的支持，您可**右键界面**，选择相应的语言，目前仅支持简体中文、English。
 
 <img src="https://github.com/user-attachments/assets/cbe65c33-7e6d-447d-92a6-e778033f1712" title="multi language" style="zoom:50%;" />
-=======
 ## 贡献
 
 欢迎提交 Issue 或 Pull Request 来改进此组件。
+
+本人主页[pigrich (pigrich)](https://github.com/pigrich)

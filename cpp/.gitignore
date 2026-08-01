@@ -79,3 +79,4 @@ CMakeLists.txt.user*
 .rcc/
 .uic/
 /build*/
+/cmake-build-*/

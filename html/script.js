@@ -51,14 +51,14 @@ const state = {
 
 function updateFaceCSS() {
     Object.entries(state.current).forEach(([prop, value]) => {
-        face.style.setProperty(`--${prop}`, value)
+        face.style.setProperty(`--${prop}`, String(value))
     })
 }
 
 function transitionToState(stateType, hideButton = null) {
     const targetState = config.states[stateType]
     Object.assign(state.current, targetState.face)
-    btnHappy.innerHTML = targetState.ui.btnUnhappyText
+    btnHappy.innerHTML = targetState.ui.btnHappyText
     btnUnhappy.innerHTML = targetState.ui.btnUnhappyText
     title.innerHTML = targetState.ui.titleText
     subtitle.innerHTML = targetState.ui.subtitleText
@@ -84,6 +84,7 @@ function stopAnimation() {
 
 function startAnimation() {
     function updateFace() {
+        let needsUpdate;
         for (const prop in state.target) {
             if (state.target[prop] === state.current[prop]) continue
 
