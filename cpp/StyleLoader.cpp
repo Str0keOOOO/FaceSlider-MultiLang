@@ -11,7 +11,8 @@ StyleLoader &StyleLoader::append(const QString &filename)
 StyleLoader &StyleLoader::operator<<(const QString &filename)
 {
     QFile file(filename);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly))
+        return *this;
     auto data = file.readAll();
     file.close();
     d_.append(data.append('\n'));

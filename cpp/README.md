@@ -4,7 +4,7 @@
 
 ## 构建
 
-此C++项目基于Qt6编写，使用cmake构建，要求cmake最低版本为3.16，因此**要求使用者应具备Qt6及cmake环境**。构建步骤如下：
+此C++项目基于Qt6编写，使用cmake构建，要求cmake最低版本为3.16，因此要求使用者应具备Qt6及cmake环境。构建步骤如下：
 
 ```
 git clone https://github.com/Str0keOOOO/FaceSlider-MultiLang
@@ -19,12 +19,12 @@ cmake --build ./build --target all
 
 ## 安装
 
-使用者也可通过安装程序(installer.exe)直接安装可执行文件，此安装程序在[release](https://github.com/Str0keOOOO/FaceSlider-MultiLang/releases/tag/v1.0.0)里面（目前只有Windows版本的安装程序）。
+使用者也可通过安装程序(installer.exe)直接安装可执行文件，此安装程序也位于此目录下（目前只有Windows版本的安装程序）。
 
 ## 效果展示
 
 <img src="https://github.com/user-attachments/assets/d76a4020-cc39-4eba-9549-4e553c807bb9" title="interface display" style="zoom: 50%;" />
-
+=======
 ## 不足
 
 本C++项目与Web版本存在一定的差距，主要有三点：
@@ -80,7 +80,6 @@ int main() {
 本C++版本还提供了**多语言**功能的支持，您可**右键界面**，选择相应的语言，目前仅支持简体中文、English。
 
 <img src="https://github.com/user-attachments/assets/cbe65c33-7e6d-447d-92a6-e778033f1712" title="multi language" style="zoom:50%;" />
-
 ## 贡献
 
 欢迎提交 Issue 或 Pull Request 来改进此组件。
